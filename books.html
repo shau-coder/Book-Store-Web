@@ -1,0 +1,318 @@
+]<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Browse Books — ReadApp</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+/* ================= GLOBAL ================= */
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Segoe UI',sans-serif;
+  background:#f6f8fb;
+  color:#333;
+}
+
+.container{display:flex;height:100vh;}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+  width:270px;
+  background:white;
+  padding:24px;
+  border-right:1px solid #e5e7eb;
+  position:fixed;
+  height:100%;
+}
+
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:30px;}
+.logo i{font-size:22px;color:#2563eb;}
+.logo span{font-size:18px;font-weight:600;}
+
+.search-box{position:relative;margin-bottom:30px;}
+.search-box input{
+  width:100%;padding:12px 14px 12px 40px;
+  border:1px solid #e5e7eb;border-radius:12px;
+}
+.search-box i{
+  position:absolute;left:14px;top:50%;
+  transform:translateY(-50%);color:#888;
+}
+
+.nav-items{list-style:none;}
+.nav-item{margin-bottom:8px;}
+
+.nav-item a{
+  display:flex;gap:14px;align-items:center;
+  padding:12px;border-radius:12px;
+  text-decoration:none;color:#6b7280;
+  transition:.2s;
+}
+
+.nav-item a:hover{
+  background:#f1f5f9;color:#2563eb;
+}
+
+.nav-item.active a{
+  background:#e8f0ff;color:#2563eb;font-weight:500;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+  margin-left:270px;
+  padding:32px;
+  flex:1;
+  overflow-y:auto;
+}
+
+/* Header */
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:24px;
+}
+
+.header h1{font-size:28px;}
+
+/* Search + Filter */
+
+.controls{
+  display:flex;
+  gap:12px;
+  margin-bottom:24px;
+}
+
+.controls input,
+.controls select{
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  outline:none;
+}
+
+/* ================= BOOK GRID ================= */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:24px;
+}
+
+.card{
+  background:white;
+  padding:16px;
+  border-radius:16px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.05);
+  transition:.25s;
+}
+
+.card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.12);
+}
+
+.card img{
+  width:100%;
+  height:240px;
+  object-fit:cover;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.title{font-weight:600;margin-bottom:4px;}
+.author{font-size:13px;color:#6b7280;margin-bottom:6px;}
+.price{font-weight:600;margin-bottom:10px;}
+
+.btn{
+  padding:8px 10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.cart-btn{background:#2563eb;color:white;}
+.wish-btn{background:#f1f5f9;margin-left:6px;}
+
+.btn:hover{opacity:.9;}
+
+/* Responsive */
+
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .main{margin-left:0;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- ================= SIDEBAR ================= -->
+
+<nav class="sidebar">
+
+<div class="logo">
+<i class="fas fa-book-open"></i>
+<span>ReadApp</span>
+</div>
+
+<div class="search-box">
+<input type="text" placeholder="Search...">
+<i class="fas fa-search"></i>
+</div>
+
+<ul class="nav-items">
+<li class="nav-item"><a href="index.html"><i class="fas fa-home"></i>Dashboard</a></li>
+<li class="nav-item active"><a href="#"><i class="fas fa-book"></i>Books</a></li>
+<li class="nav-item"><a href="#"><i class="fas fa-heart"></i>Wishlist</a></li>
+<li class="nav-item"><a href="#"><i class="fas fa-clock"></i>Orders</a></li>
+<li class="nav-item"><a href="#"><i class="fas fa-shopping-cart"></i>Cart</a></li>
+<li class="nav-item"><a href="#"><i class="fas fa-question-circle"></i>Help</a></li>
+<li class="nav-item"><a href="#"><i class="fas fa-cog"></i>Settings</a></li>
+</ul>
+
+</nav>
+
+<!-- ================= MAIN ================= -->
+
+<main class="main">
+
+<div class="header">
+<h1>Browse Books</h1>
+</div>
+
+<div class="controls">
+<input id="searchInput" placeholder="Search by title or author">
+<select id="categoryFilter">
+<option value="all">All Categories</option>
+<option value="Programming">Programming</option>
+<option value="Novel">Novel</option>
+<option value="Technology">Technology</option>
+</select>
+</div>
+
+<div class="grid" id="bookGrid"></div>
+
+</main>
+</div>
+
+<script>
+
+/* ========= SAMPLE BOOK DATA ========= */
+
+const books = [
+ {id:1,title:"Java Programming",author:"Herbert Schildt",price:450,category:"Programming",img:"https://m.media-amazon.com/images/I/51VOC0wAkJL.jpg"},
+ {id:2,title:"Python Basics",author:"John Zelle",price:400,category:"Programming",img:"https://picsum.photos/200/300?2"},
+ {id:3,title:"Game of Thrones",author:"George R.R. Martin",price:550,category:"Novel",img:"https://m.media-amazon.com/images/I/71P+4DslKmL._AC_UF1000,1000_QL80_.jpg"},
+ {id:4,title:"Artificial Intelligence",author:"Stuart Russell",price:600,category:"Technology",img:"https://picsum.photos/200/300?4"},
+ {id:5,title:"Data Structures",author:"Mark Allen",price:500,category:"Programming",img:"https://picsum.photos/200/300?5"},
+];
+
+/* ========= DISPLAY BOOKS ========= */
+
+const grid = document.getElementById("bookGrid");
+
+function displayBooks(list){
+
+ grid.innerHTML="";
+
+ list.forEach(book=>{
+
+  grid.innerHTML += `
+  <div class="card" onclick="openDetails(${book.id})">
+
+    <img src="${book.img}">
+    <div class="title">${book.title}</div>
+    <div class="author">${book.author}</div>
+    <div class="price">₹${book.price}</div>
+
+    <button class="btn cart-btn"
+      onclick="event.stopPropagation(); addCart(${book.id})">
+      Add to Cart
+    </button>
+
+    <button class="btn wish-btn"
+      onclick="event.stopPropagation(); addWish(${book.id})">
+      ❤
+    </button>
+
+  </div>`;
+ });
+
+}
+
+displayBooks(books);
+
+/* ========= SEARCH ========= */
+
+document.getElementById("searchInput")
+.addEventListener("input", function(){
+
+ const value = this.value.toLowerCase();
+
+ const filtered = books.filter(b =>
+  b.title.toLowerCase().includes(value) ||
+  b.author.toLowerCase().includes(value)
+ );
+
+ displayBooks(filtered);
+
+});
+
+/* ========= CATEGORY FILTER ========= */
+
+document.getElementById("categoryFilter")
+.addEventListener("change", function(){
+
+ if(this.value==="all") displayBooks(books);
+ else{
+  const filtered = books.filter(b=>b.category===this.value);
+  displayBooks(filtered);
+ }
+
+});
+
+/* ========= CART ========= */
+
+function addCart(id){
+ let cart = JSON.parse(localStorage.getItem("cart")) || [];
+ cart.push(id);
+ localStorage.setItem("cart", JSON.stringify(cart));
+ alert("Added to cart");
+}
+
+/* ========= WISHLIST ========= */
+
+function addWish(id){
+ let wish = JSON.parse(localStorage.getItem("wish")) || [];
+ wish.push(id);
+ localStorage.setItem("wish", JSON.stringify(wish));
+ alert("Added to wishlist");
+}
+
+/* ========= DETAILS PAGE ========= */
+
+function openDetails(id){
+ localStorage.setItem("selectedBook", id);
+ window.location = "book-details.html";
+}
+
+</script>
+
+</body>
+</html>
